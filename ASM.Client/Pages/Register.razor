@@ -1,0 +1,188 @@
+﻿@page "/register"
+
+@using System.Net
+@using ASM.Share.Models
+@using Newtonsoft.Json;
+@inject IJSRuntime JSRuntime
+@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+@inject Microsoft.Extensions.Configuration.IConfiguration config
+@inject NavigationManager NavigationManager
+@layout WebLayout2
+
+@*<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm Model="@khachhang" OnValidSubmit="@SubmitForm">
+            <DataAnnotationsValidator />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label class="control-lable">Khách hàng</label>
+                <input @bind="khachhang.FullName" class="form-control" />
+                <ValidationMessage For="@(() => khachhang.FullName)" />
+            </div>
+
+            <div class="form-group">
+                <label class="control-lable">Ngày sinh</label>
+                <input @bind="khachhang.BirthDay" class="form-control" type="date" />
+                <ValidationMessage For="@(() => khachhang.BirthDay)" />
+            </div>
+
+            <div class="form-group">
+                <label class="control-lable">Số điện thoại</label>
+                <input @bind="khachhang.PhoneNumber" class="form-control" type="tel" />
+                <ValidationMessage For="@(() => khachhang.PhoneNumber)" />
+            </div>
+
+            <div class="form-group">
+                <label class="control-lable">Địa chỉ</label>
+                <input @bind="khachhang.Address" class="form-control" />
+                <ValidationMessage For="@(() => khachhang.Address)" />
+            </div>
+
+            <div class="form-group">
+
+                <label asp-for="EmailAddress" class="control-lable">Email</label>
+                <input @bind="khachhang.EmailKH" class="form-control" type="email" />
+                <ValidationMessage For="@(() => khachhang.EmailKH)" />
+            </div>
+
+            <div class="form-group">
+                <label class="control-lable">Mật khẩu</label>
+                <input type="password" @bind="khachhang.Password" class="form-control" />
+                <ValidationMessage For="@(() => khachhang.Password)" />
+            </div>
+
+            <div class="form-group">
+                <label class="control-lable">Mật khẩu lần 2</label>
+                <input type="password" @bind="khachhang.ConfirmPassword" class="form-control" />
+                <ValidationMessage For="@(() => khachhang.ConfirmPassword)" />
+            </div>
+
+            <div class="form-group">
+                <label class="control-lable">Mô tả</label>
+                <input @bind="khachhang.Describe" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/Index">Trang chủ</a>
+</div>*@
+
+<section id="login">
+    <div class="container">
+        <div class="section-header">
+            <h3>ĐĂNG KÝ</h3>
+        </div>
+
+        <div class="row">
+            <div class="container">
+                <div class="login-col-1">
+                    <div class="login-form">
+                        <EditForm Model="@khachhang" OnValidSubmit="@SubmitForm">
+                            <DataAnnotationsValidator />
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label asp-for="EmailAddress" class="control-lable">Email</label>
+                                    <input @bind="khachhang.EmailKH" class="form-control" type="email" />
+                                    <ValidationMessage For="@(() => khachhang.EmailKH)" />
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="control-lable">Họ tên</label>
+                                    <input @bind="khachhang.FullName" class="form-control" />
+                                    <ValidationMessage For="@(() => khachhang.FullName)" />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label class="control-lable">Ngày sinh</label>
+                                    <input @bind="khachhang.BirthDay" class="form-control" type="date" />
+                                    <ValidationMessage For="@(() => khachhang.BirthDay)" />
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="control-lable">Số điện thoại</label>
+                                    <input @bind="khachhang.PhoneNumber" class="form-control" type="tel" />
+                                    <ValidationMessage For="@(() => khachhang.PhoneNumber)" />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label class="control-lable">Địa chỉ</label>
+                                    <input @bind="khachhang.Address" class="form-control" />
+                                    <ValidationMessage For="@(() => khachhang.Address)" />
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="control-lable">Mô tả</label>
+                                    <input @bind="khachhang.Describe" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label class="control-lable">Mật khẩu</label>
+                                    <input type="password" @bind="khachhang.Password" class="form-control" />
+                                    <ValidationMessage For="@(() => khachhang.Password)" />
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="control-lable">Mật khẩu lần 2</label>
+                                    <input type="password" @bind="khachhang.ConfirmPassword" class="form-control" />
+                                    <ValidationMessage For="@(() => khachhang.ConfirmPassword)" />
+                                </div>
+                            </div>
+                            <div>
+                                <button type="submit" >Đăng ký</button>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+@code {
+    KhachHang khachhang = new KhachHang();
+    private string Tieude = "Đăng ký";
+
+    protected override void OnInitialized()
+    {
+
+    }
+
+    private async void SubmitForm()
+    {
+        var apiUrl = config.GetSection("API")["APIUrl"].ToString();
+        var accessToken = sessionStorage.GetItem<string>("AccessToken");
+
+        using (var client = new HttpClient())
+        {
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            StringContent content = new StringContent(JsonConvert.SerializeObject(khachhang), System.Text.Encoding.UTF8, "application/json");
+            client.DefaultRequestHeaders.Add("Access-Control-Allow-Origin", "*");
+            HttpResponseMessage response = await client.PostAsync(apiUrl + "Khachhang", content);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+
+            }
+            else
+            {
+                string apiResponse = await response.Content.ReadAsStringAsync();
+                if (apiResponse == "-1")
+                {
+
+                }
+                else
+                {
+                    NavigationManager.NavigateTo("/login");
+                }
+            }
+        }
+    }
+}

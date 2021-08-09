@@ -1,0 +1,68 @@
+﻿@page "/monanlist"
+@using ASM.Share.Models
+@inject ASM.Share.Interfaces.IMonAnService _monAnService
+
+<h1>Danh sách món ăn</h1>
+@if (monAns == null)
+{
+    <p><em>Loading ...</em></p>
+}
+else
+{
+    <a class="btn btn-success p-10" href="/monandialog/0">Thêm</a>
+    <br />
+    <br />
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Tên</th>
+                <th>Giá</th>
+                <th>Phân loại</th>
+                <th>Hình</th>
+                <th>Trạng thái</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in monAns)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Price</td>
+                    <td>
+                        @if (item.Type == PhanLoai.MonAn)
+                        {
+                            <span>Món ăn</span>
+                        }
+                        @if (item.Type == PhanLoai.Nuoc)
+                        {
+                            <span>Nước</span>
+                        }
+                        @if (item.Type == PhanLoai.Combo)
+                        {
+                            <span>Combo</span>
+                        }
+                    </td>
+                    <td><img src="images/monan/@item.Picture" style="width:150px" /></td>
+                    <td>@item.Status</td>
+                    <td>
+                        <a class="btn btn-info" href="/MonAnDialog/@item.MonAnID">Sửa</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    public List<MonAn> monAns { get; set; }
+    protected override void OnInitialized()
+    {
+        monAns = _monAnService.GetMonAnAll();
+    }
+
+    private void Delete(int id)
+    {
+
+    }
+}

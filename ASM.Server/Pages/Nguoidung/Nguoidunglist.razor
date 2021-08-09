@@ -1,0 +1,57 @@
+﻿@page "/nguoidunglist"
+@using ASM.Share.Models
+@inject ASM.Share.Interfaces.INguoiDungService _nguoiDungService
+    <h1>Danh sách người dùng</h1>
+@if (nguoiDungs == null)
+{
+    <p><em>Có lỗi xảy ra</em></p>
+}
+else
+{
+    <a class="btn btn-outline-primary p-10" href="/nguoidungdialog/0">Thêm</a>
+    <table class="table table-bordered text-center">
+        <thead>
+            <tr>
+                <th>Tên đăng nhập</th>
+                <th>Họ tên</th>
+                <th>Email</th>
+                <th>Chức danh</th>
+                <th>Ngày sinh</th>
+                <th>Vai trò</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in nguoiDungs)
+            {
+            <tr>
+                <td>@item.UserName</td>
+                <td>@item.FullName</td>
+                <td>@item.Email</td>
+                <td>@item.Title</td>
+                <td>@item.BirthDay</td>
+                <td>@item.Role</td>
+                <td>@item.Locked</td>
+
+                <td>
+                    <a class="btn btn-outline-primary" href="/nguoidungdialog/@item.NguoiDungID">Sửa</a> 
+                    @*<a class="btn btn-outline-danger" @onclick="@(()=> Delete(item.NguoiDungID))">Xóa</a>*@
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    public List<NguoiDung> nguoiDungs;
+    protected override void OnInitialized()
+    {
+        nguoiDungs = _nguoiDungService.GetNguoiDungAll();
+    }
+    //private void Delete(int id)
+    //{
+
+    //}
+}

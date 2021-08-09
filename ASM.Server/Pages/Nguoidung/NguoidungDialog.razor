@@ -1,0 +1,113 @@
+﻿@page "/nguoidungdialog/{id}"
+@using ASM.Share.Models
+@inject ASM.Share.Interfaces.INguoiDungService _nguoiDungService
+@inject NavigationManager NavigationManager
+
+<h3>@tieuDe</h3>
+<div class="row">
+    <div class="col-md-4">
+        <EditForm Model="@nguoidung" OnValidSubmit="@SubmitForm">
+            <DataAnnotationsValidator />
+            <input type="hidden" @bind="nguoidung.NguoiDungID" />
+            <div class="form-group">
+                <label class="control-label">Tên đăng nhập</label>
+                <input @bind="nguoidung.UserName" class="form-control" />
+                <ValidationMessage For="@(() => nguoidung.UserName)" />
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Họ tên</label>
+                <input @bind="nguoidung.FullName" class="form-control" />
+                <ValidationMessage For="@(() => nguoidung.FullName)" />
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Email</label>
+                <input @bind="nguoidung.Email" class="form-control" />
+                <ValidationMessage For="@(() => nguoidung.Email)" />
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Chức danh</label>
+                <input @bind="nguoidung.Title" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label for="nguoidung.DOB" class="control-label">Ngày sinh</label>
+                <input type="date" @bind="nguoidung.BirthDay" class="form-control" />
+                <ValidationMessage For="@(() => nguoidung.BirthDay)" />
+            </div>
+
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input type="checkbox" class="form-check-input" @bind="nguoidung.Admin" /> Quản trị
+                </label>
+            </div>
+
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input type="checkbox" class="form-check-input" @bind="nguoidung.Locked" /> Sử dụng
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="nguoidung.Password" class="control-label">Mật khẩu</label>
+                <input type="password" @bind="nguoidung.Password" class="form-control" />
+                <ValidationMessage For="@(() => nguoidung.Password)" />
+            </div>
+
+            <div class="form-group">
+                <label for="nguoidung.ConfirmPassword" class="control-label">Mật khẩu 2</label>
+                <input type="password" @bind="nguoidung.ConfirmPass" class="form-control" />
+                <ValidationMessage For="@(() => nguoidung.ConfirmPass)" />
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-info">Lưu</button>
+                <input type="button" class="btn btn-primary" @onclick="@Cancel" value="Thoát" />
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string id { get; set; }
+
+    private ASM.Share.Models.NguoiDung nguoidung { get; set; }
+    private string tieuDe = "";
+
+    protected override void OnInitialized()
+    {
+        if (string.IsNullOrWhiteSpace(id) || id == "0")
+        {
+            tieuDe = "Thêm người dùng";
+            nguoidung = new ASM.Share.Models.NguoiDung();
+        }
+        else
+        {
+            tieuDe = "Sửa người dùng";
+            nguoidung = _nguoiDungService.GetNguoiDung(int.Parse(id));
+
+        }
+    }
+
+    private void SubmitForm()
+    {
+        if (nguoidung.NguoiDungID == 0)
+        {
+            _nguoiDungService.AddNguoiDung(nguoidung);
+        }
+        else
+        {
+            _nguoiDungService.EditNguoiDung(nguoidung.NguoiDungID, nguoidung);
+        }
+        NavigationManager.NavigateTo("Nguoidunglist");
+
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("Nguoidunglist", true);
+    }
+}

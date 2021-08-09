@@ -1,0 +1,25 @@
+﻿@page "/logout"
+@using System.Web
+@using System.Net
+@using System.ComponentModel.DataAnnotations
+@layout WebLayout
+@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+@inject NavigationManager navigationManager
+@inject Microsoft.Extensions.Configuration.IConfiguration config
+@inject JSRuntime jsruntime
+
+@code {
+    private bool loading;
+    private string error;
+
+    string email = "";
+    string password = "";
+    private string name;
+
+    protected override async Task OnInitializedAsync()
+    {
+        sessionStorage.Clear();
+        await jsruntime.InvokeAsync<object>("refreshMenu", "");
+        navigationManager.NavigateTo("/");
+    }
+}

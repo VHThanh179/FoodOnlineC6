@@ -1,0 +1,12 @@
+﻿@page "/loginControl"
+@using System.Web
+
+<AuthorizeView>
+    <Authorized>
+        <b>Hello @context.User.Identity.Name !</b>
+        <a class="ml-md-auto btn btn-outline-success" 
+           href="/logout?returnUrl=/"
+           target="_top">Log out</a>
+    </Authorized>
+    <NotAuthorized></NotAuthorized>
+</AuthorizeView>

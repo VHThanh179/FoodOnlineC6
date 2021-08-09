@@ -1,0 +1,236 @@
+﻿@page "/cart"
+@using System.Net
+@using ASM.Share.Models.ViewModels
+@using Newtonsoft.Json;
+@inject IJSRuntime JSRuntime
+@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+@inject Microsoft.Extensions.Configuration.IConfiguration config
+@inject NavigationManager NavigationManager
+@layout WebLayout2
+
+@*<style>
+    .viewProduct, .addProduct {
+        border: 0;
+        font-weight: 700;
+        padding: 9px 5px;
+        background: #e65c5c;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        display: block;
+        width: 186px;
+        margin: 0 auto;
+        color: lightgoldenrodyellow;
+        text-align: center
+    }
+
+        .addProduct:hover {
+            text-decoration: none;
+            color: black;
+        }
+</style>
+
+<h1>Cart</h1>
+
+<table class="table">
+    <tr>
+        <th>Title</th>
+        <th>Image</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Total</th>
+        <th></th>
+    </tr>
+    @{
+        @foreach (var item in giohang.ListViewCart)
+        {
+            @if (item != null)
+            {
+                <tr>
+                    <td>
+                        @item.MonAn.Name
+                    </td>
+                    <td>
+                        <img src="@(imgUrl + item.MonAn.Picture)" style="width:150px" />
+                    </td>
+                    <td>
+                        <input type="number" id="txtQuantity_@item.MonAn.MonAnID"
+                               @oninput="(e) => item.Quantity = int.Parse(e.Value.ToString())"
+                               @onchange="() => UpdateCart(item)" value="@item.Quantity" />
+                    </td>
+                    <td id="tdGia_@item.MonAn.MonAnID">@item.MonAn.Price</td>
+                    <td id="tdTien_@item.MonAn.MonAnID">@item.Sotien</td>
+                    <td>
+                        <a href="javascript:return  false;" @onclick="() => DeleteCart(item)"
+                           onmouseup="delCart(@item.MonAn.MonAnID)">Delete</a>
+                    </td>
+                </tr>
+            }
+        }
+    }
+</table>
+<p>
+    <div>Tổng tiền: <span id="spTotal">@giohang.Tongtien</span></div>
+</p>
+<p>
+    @if (@emailAddress != null && @emailAddress != "")
+    {
+        <button class="btn btn-link" @onclick="OrderCart">Đặt hàng</button>
+    }
+    else
+    {
+        <span>Bạn cần đăng nhập để đặt hàng</span>
+    }
+</p>*@
+
+<section id="cart">
+    <div class="container">
+        <header class="section-header">
+            <h3>GIỎ HÀNG</h3>
+        </header>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="table-responsive-sm">
+                    <table class="table table-bordered table-hover">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">STT</th>
+                                <th scope="col">Món ăn</th>
+                                <th scope="col">Hình ảnh</th>
+                                <th scope="col">Giá</th>
+                                <th scope="col">Số lượng</th>
+                                <th scope="col">Tổng tiền</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int stt = 0;
+                                @foreach (var item in giohang.ListViewCart)
+                                {
+                                    stt++;
+                                    @if (item != null)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @stt
+                                            </td>
+                                            <td>
+                                                @item.MonAn.Name
+                                            </td>
+                                            <td>
+                                                <img src="@(imgUrl + item.MonAn.Picture)" style="width:150px; height:100px" />
+                                            </td>
+                                            <td>
+                                                <input min="1" type="number" id="txtQuantity_@item.MonAn.MonAnID"
+                                                       @oninput="(e) => item.Quantity = int.Parse(e.Value.ToString())"
+                                                       @onchange="() => UpdateCart(item)" value="@item.Quantity" />
+                                            </td>
+                                            <td id="tdGia_@item.MonAn.MonAnID">@item.MonAn.Price</td>
+                                            <td id="tdTien_@item.MonAn.MonAnID">@item.Sotien</td>
+                                            <td>
+                                                <a href="javascript:return  false;" @onclick="() => DeleteCart(item)"
+                                                   onmouseup="delCart(@item.MonAn.MonAnID)"><i class="fa fa-trash-o"></i></a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <p class=" font-weight-bold text-right mr-5 mt-3 mb-0">Tổng tiền : <span id="spTotal">@giohang.Tongtien</span></p>
+                <div class="button">
+                    @if (emailAddress != null && emailAddress != "")
+                    {
+                        <button @onclick="OrderCart">Đặt hàng</button>
+                    }
+                    else
+                    {
+                        <span>Bạn cần đăng nhập để đặt hàng</span>
+
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@code {
+    private string emailAddress;
+    public Cart giohang;
+    private double total = 0;
+    protected string imgUrl = "";
+    protected string temp = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        emailAddress = sessionStorage.GetItem<string>("Email");
+        var cart = sessionStorage.GetItem<string>("cart");
+        if (cart == null)
+        {
+            giohang = new Cart();
+        }
+        else
+        {
+            giohang = JsonConvert.DeserializeObject<Cart>(cart);
+        }
+        imgUrl = config.GetSection("API")["ImgUrl"].ToString();
+    }
+
+    private void UpdateCart(CartItem item)
+    {
+        item.Sotien = item.Quantity * item.MonAn.Price;
+        giohang.Tongtien = Tinhtien(giohang.ListViewCart);
+        sessionStorage.SetItem("cart", JsonConvert.SerializeObject(giohang));
+    }
+
+    private void DeleteCart(CartItem item)
+    {
+        giohang.ListViewCart.Remove(item);
+        giohang.Tongtien = Tinhtien(giohang.ListViewCart);
+        sessionStorage.SetItem("cart", JsonConvert.SerializeObject(giohang));
+    }
+
+    private async Task OrderCart()
+    {
+        var apiUrl = config.GetSection("API")["APIUrl"].ToString();
+        imgUrl = config.GetSection("API")["ImgUrl"].ToString();
+        var accessToken = sessionStorage.GetItem<string>("AccessToken");
+        var khachhangid = sessionStorage.GetItem<int>("khachhangId");
+
+        giohang.KhanghangId = khachhangid;
+
+        using (var client = new HttpClient())
+        {
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            StringContent content = new StringContent(JsonConvert.SerializeObject(giohang), System.Text.Encoding.UTF8, "application/json");
+            client.DefaultRequestHeaders.Add("Access-Control-Allow-Origin", "*");
+            HttpResponseMessage response = await client.PostAsync(apiUrl + "Cart", content);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+
+            }
+            else
+            {
+                sessionStorage.RemoveItem("cart");
+                await JSRuntime.InvokeAsync<object>("clearCart", "");
+                NavigationManager.NavigateTo("/history");
+            }
+        }
+    }
+
+    private double Tinhtien(List<CartItem> listCart)
+    {
+        double tongtien = 0;
+        if (listCart != null)
+        {
+            for (int i = 0; i < listCart.Count; i++)
+            {
+                tongtien += listCart[i].Sotien;
+            }
+        }
+        return tongtien;
+    }
+}

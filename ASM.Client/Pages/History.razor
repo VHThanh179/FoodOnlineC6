@@ -1,0 +1,151 @@
+﻿@page "/history"
+@using System.Net
+@using ASM.Share.Models.ViewModels
+@using Newtonsoft.Json;
+@inject IJSRuntime JSRuntime
+@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+@inject Microsoft.Extensions.Configuration.IConfiguration config
+@inject NavigationManager NavigationManager
+@layout WebLayout2
+@*<h1>Danh sách đơn hàng</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Khách hàng
+                </th>
+                <th>
+                    Ngày đặt
+                </th>
+                <th>
+                    Tổng tiền
+                </th>
+                <th>
+                    Trạng thái
+                </th>
+                <th>
+                    Ghi chú
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in donHangs)
+            {
+                <tr>
+                    <td>
+                        @item.KhachHang.EmailKH
+                    </td>
+                    <td>
+                        @item.OrderDay.ToString("dd/MM/yyyy");
+                    </td>
+                    <td>
+                        @item.Total
+                    </td>
+                    <td>
+                        @item.Status
+                    </td>
+                    <td>
+                        @item.Note
+                    </td>
+                    <td>
+                        <a href="/detail/@item.DonHangID">Chi tiết</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div>
+        <a href="/Index">Trang chủ</a>
+    </div>*@
+
+
+<h1 class="text-center">Lịch sử</h1>
+
+@*<p>
+        <a asp-action="Create">Create New</a>
+    </p>*@
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Khách hàng
+            </th>
+            <th>
+                Ngày đặt
+            </th>
+            <th>
+                Tổng tiền
+            </th>
+            <th>
+                Trạng thái
+            </th>
+            <th>
+                Ghi chú
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in donHangs)
+        {
+            <tr>
+                <td>
+                    @item.KhachHang.EmailKH
+                </td>
+                <td>
+                    @item.OrderDay.ToString("dd/MM/yyyy");
+                </td>
+                <td>
+                    @item.Total
+                </td>
+                <td>
+                    @item.Status
+                </td>
+                <td>
+                    @item.Note
+                </td>
+                <td>
+                    <a href="/detail/@item.DonHangID">Chi tiết</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<div>
+    <a href="/Index">Trang chủ</a>
+</div>
+
+@code {
+    private string emailAddress;
+    public List<DonHang> donHangs = new List<DonHang>
+();
+    public Cart giohang;
+    private double total = 0;
+    protected string imgUrl = "";
+    protected string temp = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        emailAddress = sessionStorage.GetItem<string>("Email");
+        int khachhangid = sessionStorage.GetItem<int>("khachhangId");
+        var apiUrl = config.GetSection("API")["APIUrl"].ToString();
+        imgUrl = config.GetSection("API")["ImgUrl"].ToString();
+        var accessToken = sessionStorage.GetItem<string>("AccessToken");
+        donHangs = new List<DonHang>();
+
+        using (var client = new HttpClient())
+        {
+            Dictionary<string, string> query = new Dictionary<string, string>();
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            client.DefaultRequestHeaders.Add("Access-Control-Allow-Origin", "*");
+            client.BaseAddress = new Uri(apiUrl);
+
+            using (var response = await client.GetAsync("Donhang/?id=" + khachhangid))
+            {
+                string apiResponse = await response.Content.ReadAsStringAsync();
+                donHangs = JsonConvert.DeserializeObject<List<DonHang>>(apiResponse);
+            }
+        }
+    }
+}

@@ -1,0 +1,122 @@
+﻿@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+@inject NavigationManager navigationManager
+@*<ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link text-dark" id="cart" href="/Cart">
+                @if (cart != null && cart != "")
+                {
+                    <img id="imgCart" src="/images/cartA.png" style="width:30px;" />
+                }
+                else
+                {
+                    <img id="imgCart" src="/images/cart.png" style="width:30px;" />
+                }
+            </a>
+        </li>
+    </ul>
+
+    <ul class="navbar-nav" id="navLogin">
+        @if (emailAddress != null && emailAddress != "")
+        {
+            <li class="nav-item">
+                <a class="nav-link text-dark " id="information" href="/Info/@khachhangid">Hello @emailAddress | </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark " id="history" href="/History">Đơn hàng | </a>
+            </li>
+            <li class="nav-item">
+                <button id="logout" type="button" @onclick="Logout" class="nav-link btn btn-link text-dark ">Logout</button>
+            </li>
+        }
+        else
+        {
+            <li class="nav-item">
+                <a class="nav-link text-dark " id="register" href="/Register">Đăng ký | </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark " id="login" href="/Login">Đăng nhập</a>
+            </li>
+        }
+    </ul>*@
+
+@if (emailAddress != null && emailAddress != "")
+{
+    <li class="menu-active"><a href="/">Home</a></li>
+    <li class="menu-has-children">
+        <a>Menu</a>
+        <ul>
+            <li><a href="/Home/One">Món</a></li>
+            <li><a href="/Home/Combo">Combo</a></li>
+        </ul>
+    </li>
+    <li><a href="/Cart">Giỏ hàng</a></li>
+    <li><a href="/Contact">Liên hệ</a></li>
+    <li><a href="/Info/@khachhangid">@emailAddress!</a></li>
+    <li><a href="/History">Đơn hàng </a></li>
+    <li><a @onclick="Logout">Logout</a></li>
+    <li>
+        <div class="search mt-2">
+            <form>
+                <input @bind-value="SearchTerm" type="text" class="form-control input-sm" maxlength="64" placeholder="Tìm kiếm" />
+                <button @onclick="Searching" type="submit" class="btn btn-primary btn-sm"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+    </li>
+}
+else
+{
+    <li class="menu-active"><a href="/">Home</a></li>
+    <li class="menu-has-children">
+        <a>Menu</a>
+        <ul>
+            <li><a href="/One">Món</a></li>
+            <li><a href="/Combo">Combo</a></li>
+        </ul>
+    </li>
+    <li><a href="/Cart">Giỏ hàng</a></li>
+    <li><a href="/Login">Đăng nhập</a></li>
+    <li><a href="/Register">Đăng ký</a></li>
+    <li><a href="/Contact">Liên hệ</a></li>
+    <li>
+        <div class="search mt-2">
+            <form>
+                <input @bind-value="SearchTerm" type="text" class="form-control input-sm" maxlength="64" placeholder="Tìm kiếm" />
+                <button @onclick="Searching" type="submit" class="btn btn-primary btn-sm"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+    </li>
+}
+
+@code {
+    public string SearchTerm { get; set; }
+
+    string emailAddress;
+    string cart;
+    int khachhangid;
+    protected override async Task OnInitializedAsync()
+    {
+        emailAddress = sessionStorage.GetItem<string>("Email");
+        cart = sessionStorage.GetItem<string>("cart");
+        khachhangid = sessionStorage.GetItem<int>("khachhangId");
+    }
+
+    protected void Searching()
+    {
+        string url = "/search/" + SearchTerm;
+        navigationManager.NavigateTo(url);
+    }
+
+    protected void o()
+    {
+        emailAddress = sessionStorage.GetItem<string>("Email");
+        cart = sessionStorage.GetItem<string>("cart");
+        khachhangid = sessionStorage.GetItem<int>("khachhangId");
+    }
+
+    protected void Logout()
+    {
+        sessionStorage.RemoveItem("AccessToken");
+        sessionStorage.RemoveItem("Email");
+        navigationManager.NavigateTo("/", true);
+    }
+}

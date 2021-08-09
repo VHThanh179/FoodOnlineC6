@@ -1,0 +1,147 @@
+﻿@page "/search/{name}"
+@using System.Net
+@using ASM.Share.Models.ViewModels
+@using Newtonsoft.Json;
+@inject IJSRuntime JSRuntime
+@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+@inject Microsoft.Extensions.Configuration.IConfiguration config
+@inject NavigationManager NavigationManager
+@layout WebLayout2
+
+<section id="food-menu">
+    <div class="container">
+        <header class="section-header">
+            <h3>TÌM KIẾM</h3>
+        </header>
+        <div class="row">
+            @if (monAns.Count == 0)
+            {
+                <div class="m-auto">
+                    <h2 style="text-decoration:none">Không tìm thấy kết quả</h2>
+                </div>
+            }
+            else
+            {
+                @foreach (var item in monAns)
+                {
+                    <div class="col-sm-6 col-md-4 col-lg-3">
+                        <div class="single-menu">
+                            @{
+                                temp = imgUrl + item.Picture;
+                            }
+                            <img class="img-fluid" src="@temp" style="width:200px; height:150px" />
+                            <div>@item.Price</div>
+                            <h4>@item.Name</h4>
+                            <a class="addProduct" onmouseup="addCart(@item.MonAnID);" @onclick="() => AddCart(item.MonAnID)">
+                                Order Now
+                                <img id="imgBusy_@item.MonAnID" src="/images/busy.gif" style="display:none; width:10px; height:10px" />
+                            </a>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</section>
+
+@code {
+    [Parameter]
+    public string name { get; set; }
+
+    public List<MonAn> monAns;
+    protected string imgUrl = "";
+    protected string temp = "";
+    protected override async Task OnInitializedAsync()
+    {
+
+        var apiUrl = config.GetSection("API")["APIUrl"].ToString();
+        imgUrl = config.GetSection("API")["ImgUrl"].ToString();
+
+        monAns = new List<MonAn>();
+        using (var client = new HttpClient())
+        {
+            //client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            client.DefaultRequestHeaders.Add("Access-Control-Allow-Origin", "*");
+            client.BaseAddress = new Uri(apiUrl);
+            using (var response = await client.GetAsync("https://localhost:44323/api/MonAn/search"+"/?name=" + name))
+            {
+                string apiResponse = await response.Content.ReadAsStringAsync();
+                monAns = Newtonsoft.Json.JsonConvert.DeserializeObject<List<MonAn>>(apiResponse);
+            }
+        }
+    }
+
+    private void AddCart(int id)
+    {
+        //var cart = HttpContext.Session.GetString("cart");//get key cart
+        var cart = sessionStorage.GetItem<string>("cart");//get key cart
+        if (cart == null)
+        {
+
+            var monAn = monAns.Where(u => u.MonAnID == id).FirstOrDefault();
+            List<CartItem> listCart = new List<CartItem>()
+    {
+                    new CartItem
+                    {
+                        MonAn = monAn,
+                        Quantity = 1,
+                        Sotien= monAn.Price
+                    }
+            };
+
+            Cart giohang = new Cart()
+            {
+                ListViewCart = listCart,
+                Tongtien = Tinhtien(listCart)
+            };
+
+            sessionStorage.SetItem("cart", JsonConvert.SerializeObject(giohang));
+            //HttpContext.Session.SetString("cart", JsonConvert.SerializeObject(listCart));
+        }
+        else
+        {
+            var monAn = monAns.Where(u => u.MonAnID == id).FirstOrDefault();
+
+            Cart giohang = JsonConvert.DeserializeObject<Cart>(cart);
+            //List <ViewCart> dataCart = JsonConvert.DeserializeObject<List<ViewCart>>(cart);
+            bool check = true;
+            for (int i = 0; i < giohang.ListViewCart.Count; i++)
+            {
+                if (giohang.ListViewCart[i].MonAn.MonAnID == id)
+                {
+                    giohang.ListViewCart[i].Quantity++;
+                    giohang.ListViewCart[i].Sotien = monAn.Price * giohang.ListViewCart[i].Quantity;
+                    check = false;
+                }
+            }
+
+            if (check)
+            {
+                //var monAn = monAns.Where(u => u.MonAnID == id).FirstOrDefault();
+                giohang.ListViewCart.Add(new CartItem
+                {
+                    MonAn = monAn,
+                    Quantity = 1,
+                    Sotien = monAn.Price * 1
+                });
+            }
+            giohang.Tongtien = Tinhtien(giohang.ListViewCart);
+            sessionStorage.SetItem("cart", JsonConvert.SerializeObject(giohang));
+
+            //HttpContext.Session.SetString("cart", JsonConvert.SerializeObject(dataCart));
+        }
+    }
+
+    private double Tinhtien(List<CartItem> listCart)
+    {
+        double tongtien = 0;
+        if (listCart != null)
+        {
+            for (int i = 0; i < listCart.Count; i++)
+            {
+                tongtien += listCart[i].Sotien;
+            }
+        }
+        return tongtien;
+    }
+}

@@ -1,0 +1,88 @@
+﻿@page "/donhangdialog/{id}"
+@using ASM.Share.Models
+@using System.IO;
+@using Microsoft.AspNetCore.Hosting
+@inject ASM.Share.Interfaces.IDonHangService _donhangService
+@inject NavigationManager navigation
+@inject IWebHostEnvironment env
+
+<h3>@tieuDe</h3>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm Model="@donHang" OnValidSubmit="@SumitForm">
+            <DataAnnotationsValidator />
+            <input type="hidden" @bind="donHang.DonHangID" />
+            <div class="form-group">
+                <label class="control-lable">Khách hàng</label>
+                <input @bind="donHang.KhachHang.EmailKH" class="form-control" disabled="disabled" />
+                <input @bind="donHang.KhachHangID" class="form-control" style="display:none" />
+            </div>
+
+            <div class="form-group">
+                <label class="control-lable">Ngày đặt</label>
+                <input type="date" @bind="donHang.OrderDay" class="form-control" />
+                <span asp-validation-for="OrderDay" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-lable">Tổng tiền</label>
+                <input type="number" @bind="donHang.Total" class="form-control" />
+                <span asp-validation-for="Total" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-lable">Trạng thái</label>
+                <InputSelect @bind-Value="@donHang.Status" class="form-control">
+                    @foreach (var phanloai in Enum.GetValues(typeof(TrangThaiDonHang)))
+                    {
+                        <option value="@phanloai">@phanloai</option>
+                    }
+                </InputSelect>
+            </div>
+
+            <div class="form-group">
+                <label @bind="donHang.Note" class="control-lable"></label>
+                <input @bind="donHang.Note" class="form-control" />
+                <span asp-validation-for="Note" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-info">Lưu</button>
+                <input type="button" class="btn btn-primary" @onclick="@Cancel" value="Thoát" />
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string id { get; set; }
+
+    private DonHang donHang { get; set; }
+    private string tieuDe { get; set; }
+    IReadOnlyList<IBrowserFile> selectedFiles;
+    protected override void OnInitialized()
+    {
+        if (string.IsNullOrWhiteSpace(id) || id == "0")
+        {
+            navigation.NavigateTo("donhanglist", true);
+        }
+        else
+        {
+            tieuDe = "Sửa đơn hàng";
+            donHang = _donhangService.GetDonHang(int.Parse(id));
+        }
+    }
+
+    private async void SumitForm()
+    {
+        _donhangService.EditDonHang(donHang.DonHangID, donHang);
+        navigation.NavigateTo("donhanglist");
+    }
+
+    private void Cancel()
+    {
+        navigation.NavigateTo("donhanglist", true);
+    }
+}

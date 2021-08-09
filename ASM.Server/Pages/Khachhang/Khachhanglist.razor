@@ -1,0 +1,46 @@
+﻿@page "/khachhanglist"
+@using ASM.Share.Models
+@inject ASM.Share.Interfaces.IKhachHangService _khachHangService
+
+<h1>Danh sách khách hàng</h1>
+@if (khachHangs == null)
+{
+    <p><em>Có lỗi xảy ra</em></p>
+}
+else
+{
+    <table class="table table-bordered text-center">
+        <thead>
+            <tr>
+                <th>Họ tên</th>
+                <th>Email</th>
+                <th>Ngày sinh</th>
+                <th>Số điện thoại</th>
+                <th>Địa chỉ</th>
+                <th>Mô tả</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in khachHangs)
+            {
+                <tr>
+                    <td>@item.FullName</td>
+                    <td>@item.EmailKH</td>
+                    <td>@item.BirthDay</td>
+                    <td>@item.PhoneNumber</td>
+                    <td>@item.Address</td>
+                    <td>@item.Describe</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    public List<KhachHang> khachHangs;
+    protected override void OnInitialized()
+    {
+        khachHangs = _khachHangService.GetKhachHangAll();
+    }
+
+}
