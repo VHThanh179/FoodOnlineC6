@@ -63,9 +63,17 @@ namespace ASM.Share.Services
                 _nguoidung.Locked = nguoidung.Locked;
                 if (nguoidung.Password != null)
                 {
-                    nguoidung.Password = _maHoaHelper.Mahoa(nguoidung.Password);
-                    _nguoidung.Password = nguoidung.Password;
-                    _nguoidung.ConfirmPass = nguoidung.ConfirmPass;
+                    if (_nguoidung.Password == nguoidung.Password)
+                    {
+                        _nguoidung.Password = nguoidung.Password;
+                        _nguoidung.ConfirmPass = nguoidung.Password;
+                    }
+                    else
+                    {
+                        nguoidung.Password = _maHoaHelper.Mahoa(nguoidung.Password);
+                        _nguoidung.Password = nguoidung.Password;
+                        _nguoidung.ConfirmPass = nguoidung.ConfirmPass;
+                    }                    
                 }
                 _context.Update(_nguoidung);
                 _context.SaveChanges();

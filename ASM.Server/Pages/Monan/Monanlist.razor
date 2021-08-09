@@ -1,4 +1,5 @@
 ﻿@page "/monanlist"
+@page "/monanlist/{SearchString}"
 @using ASM.Share.Models
 @inject ASM.Share.Interfaces.IMonAnService _monAnService
 
@@ -10,6 +11,11 @@
 else
 {
     <a class="btn btn-success p-10" href="/monandialog/0">Thêm</a>
+    <br />
+    <br />
+    <input type="text" @bind="@SearchString" />
+    <button class="btn btn-outline-success" @onclick="OnParametersSet">Tìm</button>
+    <button class="btn btn-outline-primary" @onclick="OnInitialized">Danh sách</button>
     <br />
     <br />
     <table class="table">
@@ -55,14 +61,26 @@ else
 }
 
 @code {
+    [Parameter]
+    public string SearchString { get; set; }
+
     public List<MonAn> monAns { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (!string.IsNullOrEmpty(SearchString))
+        {
+            monAns = _monAnService.GetMonAnAll().Where(x => x.Name.ToUpper().Contains(SearchString.ToUpper())).ToList();
+        }
+        else
+        {
+            monAns = _monAnService.GetMonAnAll();
+        }
+    }
+
     protected override void OnInitialized()
     {
         monAns = _monAnService.GetMonAnAll();
     }
 
-    private void Delete(int id)
-    {
-
-    }
 }
